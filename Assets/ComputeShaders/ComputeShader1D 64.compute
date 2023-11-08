@@ -24,12 +24,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         float3 forceOnMoon = float3(0, 0, 0);
         
         for (int j = 0; j < gridSize; j++)
-        {
-            if (j >= gridSize)
-            {
-                continue;
-            }
-                        
+        {                        
             float3 v3Distance = moonPositions[i] - moonPositions[j];
             float distance = sqrt(dot(v3Distance, v3Distance)); // Calculate distance
             if (distance > 0.0)

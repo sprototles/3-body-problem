@@ -1,0 +1,50 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+int gridSize;
+
+RWStructuredBuffer<float3> moonPositions; // Each moon vector is a float4
+RWStructuredBuffer<float> moonMasses; // Array of moon masses
+RWStructuredBuffer<float3> ResultBuffer;
+
+[numthreads(32, 32, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    int startIndexX = id.x * gridSize / 32;
+    int endIndexX = (id.x + 1) * gridSize / 32;
+    
+    int startIndexY = id.y * gridSize / 32;
+    int endIndexY = (id.y + 1) * gridSize / 32;
+    
+    for (int i = startIndexX; i < endIndexX; i++)
+    {
+        // skip if iterating too much
+        if (i >= gridSize)
+        {
+            continue;
+        }
+        
+        for (int j = startIndexY; j < endIndexY; j++)
+        {
+            if (j >= gridSize)
+            {
+                continue;
+            }
+            
+            float3 v3Distance = moonPositions[i] - moonPositions[j];
+            float distance = sqrt(dot(v3Distance, v3Distance)); // Calculate distance
+            if (distance > 0.0)
+            {
+                float forceForce = 0.00000000006675f * ((moonMasses[i] * moonMasses[j]) / distance);
+                float3 dir = normalize(moonPositions[j] - moonPositions[i]);
+                float3 forceOnMoon = dir * forceForce;  
+                
+                // Map the 2D indices (i, j) to a 1D index
+                int index = i * gridSize + j;          
+                ResultBuffer[index] = forceOnMoon;     
+            }
+        }
+        
+
+    }
+}

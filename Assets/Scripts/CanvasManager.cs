@@ -9,13 +9,24 @@ public class CanvasManager : MonoBehaviour
 
     [Header("UI")]
     public TextMeshProUGUI simulationTimer;
-
+    [Space]
     public TMP_InputField inputField;
+    [Space]
     public TMP_Dropdown dropdownTimer;
     public TMP_Dropdown dropdownProcess;
+    public TMP_Dropdown dropdownNumthreadX;
+    public TMP_Dropdown dropdownNumthreadY;
+    [Space]
+    public Button buttonSpawnObjects;
+    public Button buttonDestroyObjects;
 
-    public Button buttonInstatiate;
-    public Button buttonStartProcess;
+    public Button buttonStartSimulation;
+    public Button buttonStopSimulation;
+
+    public Button buttonOkWarning;
+    public Button buttonDisableWarning;
+    [Space]
+    public GameObject panelWarning;
 
     [Header("Misc")]
     public TextMeshProUGUI versionText;
@@ -25,7 +36,6 @@ public class CanvasManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         versionText.text = "Version: " + Application.version; 
 
         // input fields
@@ -36,16 +46,34 @@ public class CanvasManager : MonoBehaviour
         // dropdowns
         dropdownTimer.onValueChanged.AddListener(delegate { OnDropdownTimerValueChanged(dropdownTimer.value); });
         dropdownProcess.onValueChanged.AddListener(delegate { OnDropdownProcessValueChanged(dropdownProcess.value); });
+        dropdownNumthreadX.onValueChanged.AddListener(delegate { OnDropdownNumthreadXValueChanged(dropdownNumthreadX.value); });
+        dropdownNumthreadY.onValueChanged.AddListener(delegate { OnDropdownNumthreadYValueChanged(dropdownNumthreadY.value); });
 
         // buttons
-        buttonInstatiate.onClick.AddListener(OnButtonInstantiateClicked);
-        buttonStartProcess.onClick.AddListener(OnButtonStartProcessClicked);
+        buttonSpawnObjects.onClick.AddListener(OnButtonSpawnObjectsClicked);
+        buttonDestroyObjects.onClick.AddListener(OnButtonDestroyObjectsClicked);
+
+        buttonStartSimulation.onClick.AddListener(OnButtonStartSimulationClicked);
+        buttonStopSimulation.onClick.AddListener(OnButtonStopSimulationClicked);
+
+        buttonOkWarning.onClick.AddListener(OnButtonOkWarningPressed);
+        buttonDisableWarning.onClick.AddListener(OnButtonDisableWarningPressed);
+
+        // set button status
+        buttonSpawnObjects.gameObject.SetActive(true);
+        buttonDestroyObjects.gameObject.SetActive(false);
+
+        buttonStartSimulation.gameObject.SetActive(true);
+        buttonStopSimulation.gameObject.SetActive(false);
 
 
-        buttonStartProcess.interactable = false;
+        buttonStartSimulation.interactable = false;
+
+        dropdownNumthreadX.interactable = false;
+        dropdownNumthreadY.interactable = false;
+
+        panelWarning.SetActive(false);
     }
-
-
 
     public void Update()
     {
@@ -53,8 +81,6 @@ public class CanvasManager : MonoBehaviour
         float current = 1f / Time.unscaledDeltaTime;
         display_Text.text = current.ToString("F2") + "FPS";
     }
-
-
 
     // ####################
     // Events
@@ -71,14 +97,49 @@ public class CanvasManager : MonoBehaviour
         gameManager.SetMaxArray(realNumber);
     }
 
-    private void OnButtonInstantiateClicked()
+    /// <summary>
+    /// button for Spawn objects / Destroy objects
+    /// </summary>
+    private void OnButtonSpawnObjectsClicked()
     {
-        gameManager.InstantiateClicked();
+        gameManager.SpawnObjectsClicked();
     }
 
-    private void OnButtonStartProcessClicked()
+    /// <summary>
+    /// button for Spawn objects / Destroy objects
+    /// </summary>
+    private void OnButtonDestroyObjectsClicked()
     {
-        gameManager.StartProcessClicked();
+        gameManager.DestroyObjectsClicked();
+    }
+
+    /// <summary>
+    /// button for Start simulation / Stop simulation
+    /// </summary>
+    private void OnButtonStartSimulationClicked()
+    {
+        gameManager.StartSimulationClicked();
+    }
+
+    /// <summary>
+    /// button for Stop simulation
+    /// </summary>
+    private void OnButtonStopSimulationClicked()
+    {
+        gameManager.StopSimulationClicked();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void OnButtonOkWarningPressed()
+    {
+        gameManager.OkWarningClicked();
+    }
+
+    private void OnButtonDisableWarningPressed()
+    {
+        gameManager.DisableWarningClicked();
     }
 
     private void OnDropdownTimerValueChanged(int value)
@@ -91,6 +152,16 @@ public class CanvasManager : MonoBehaviour
         gameManager.DropdownProcess(value);
     }
 
+    private void OnDropdownNumthreadXValueChanged(int value)
+    {
+        gameManager.DropdownNumthreadX(value);
+    }
+
+    private void OnDropdownNumthreadYValueChanged(int value)
+    {
+        gameManager.DropdownNumthreadY(value);
+    }
+
     #endregion
 
     // ####################
@@ -99,12 +170,12 @@ public class CanvasManager : MonoBehaviour
 
     public void UpdateButtonInstantiateText(string text)
     {
-        buttonInstatiate.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        buttonSpawnObjects.GetComponentInChildren<TextMeshProUGUI>().text = text;
     }
 
     public void UpdateButtonStartProcessText(string text)
     {
-        buttonStartProcess.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        buttonStartSimulation.GetComponentInChildren<TextMeshProUGUI>().text = text;
     }
 
     public void UpdateInputFieldText(string text)
